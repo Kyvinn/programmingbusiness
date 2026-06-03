@@ -80,10 +80,7 @@ def add_drink():
     conn.commit()
     conn.close()
 
-    return """
-    <h2>Drink Saved Successfully!</h2>
-    <a href="/">Go Back</a>
-    """
+    return render_template("success.html")
 
 @app.route('/records')
 def records():
