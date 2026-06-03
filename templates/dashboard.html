@@ -1,0 +1,266 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Dashboard</title>
+
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static',
+          filename='style.css') }}"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+
+  <body>
+    <header class="navbar">
+      <div class="logo">Student Beverage Analysis System</div>
+
+      <nav>
+        <a href="/">Record Entry</a>
+        <a href="/dashboard" class="active">Dashboard</a>
+      </nav>
+    </header>
+    <h1>Dashboard</h1>
+    <div class="summary-box">
+      <p>
+        This dashboard analyzes beverage purchasing habits based on the selected
+        time period and provides personalized recommendations to improve
+        spending efficiency and reduce sugar consumption.
+      </p>
+    </div>
+
+    <div class="period-section">
+      <h3>Analysis Period</h3>
+
+      <div class="period-buttons">
+        <a
+          href="/dashboard?period=all"
+          class="period-btn {% if period == 'all' %}active{% endif %}"
+        >
+          All Time
+        </a>
+
+        <a
+          href="/dashboard?period=30"
+          class="period-btn {% if period == '30' %}active{% endif %}"
+        >
+          Last 30 Days
+        </a>
+
+        <a
+          href="/dashboard?period=7"
+          class="period-btn {% if period == '7' %}active{% endif %}"
+        >
+          Last 7 Days
+        </a>
+      </div>
+    </div>
+
+    <div class="dashboard">
+      <div class="card">
+        <h2>Total Drinks Purchased</h2>
+        <p>{{ total_drinks }}</p>
+      </div>
+
+      <div class="card">
+        <h2>Total Spending</h2>
+        <p>NT$ {{ total_spending }}</p>
+      </div>
+
+      <div class="card">
+        <h2>Average Cost per Drink</h2>
+        <p>NT$ {{ average_cost }}</p>
+      </div>
+
+      <div class="card">
+        <h2>全糖</h2>
+        <p>{{ full_sugar_count }} orders</p>
+      </div>
+
+      <div class="card">
+        <h2>Sugar Risk</h2>
+        <p
+          class="{% if sugar_risk == 'Low Risk' %} risk-low {% elif sugar_risk == 'Moderate Risk' %} risk-moderate {% else %} risk-high {% endif %}"
+        >
+          {{ sugar_risk }}
+        </p>
+
+        {% if sugar_risk == "High Risk" %}
+        <small>
+          High average sugar intake detected. Consider switching to 半糖 or 微糖
+          options.
+        </small>
+
+        {% elif sugar_risk == "Moderate Risk" %}
+        <small>
+          Moderate sugar intake. Small reductions may improve your health score.
+        </small>
+
+        {% else %}
+        <small> Your sugar consumption habits are relatively healthy. </small>
+        {% endif %}
+      </div>
+
+      <div class="card">
+        <h2>Average Sugar Score</h2>
+        <p>{{ average_sugar_score }}/100</p>
+
+        <small> Approximate habit: {{ sugar_level_text }} </small>
+
+        <small>
+          Scale: 無糖 (0%), 微糖 (25%), 半糖 (50%), 少糖 (75%), 全糖 (100%)
+        </small>
+      </div>
+
+      <div class="card">
+        <h2>Consumption Score</h2>
+        <p>{{ consumption_score }}/100</p>
+
+        <small>
+          Measures beverage habits using frequency, sugar intake and spending.
+        </small>
+      </div>
+
+      <div class="card">
+        <h2>Consumption Rating</h2>
+        <p
+          class="{% if consumption_rating == 'Excellent' %} rating-excellent {% elif consumption_rating == 'Good' %} rating-good {% elif consumption_rating == 'Fair' %} rating-fair {% else %} rating-needs {% endif %}"
+        >
+          {{ consumption_rating }}
+        </p>
+
+        <small>
+          Based on drink frequency, sugar consumption and spending habits.
+        </small>
+      </div>
+    </div>
+
+    <div class="recommendation">
+      <h2>Recommended Actions</h2>
+
+      {% for item in recommendation %}
+      <div class="action-card">{{ item }}</div>
+      {% endfor %}
+    </div>
+
+    <h2>Improvement Plan</h2>
+
+    <div class="dashboard">
+      <div class="card">
+        <h2>Current Consumption</h2>
+        <p>{{ total_drinks }}</p>
+      </div>
+
+      <div class="card">
+        <h2>Target Consumption</h2>
+        <p>{{ recommended_drinks }}</p>
+      </div>
+
+      <div class="card">
+        <h2>Current Spending</h2>
+        <p>NT$ {{ total_spending }}</p>
+      </div>
+
+      <div class="card">
+        <h2>Target Budget</h2>
+        <p>NT$ {{ recommended_spending }}</p>
+      </div>
+
+      {% if period == "7" %}
+      <div class="card">
+        <h2>Estimated Monthly Spending</h2>
+        <p>NT$ {{ monthly_spending }}</p>
+        <small> Based on spending habits from the last 7 days. </small>
+      </div>
+      {% endif %}
+    </div>
+
+    <br />
+
+    <div class="recommendation">
+      <h3>Expected Improvement</h3>
+
+      <p><strong>Estimated Savings:</strong> NT$ {{ estimated_savings }}</p>
+
+      <p><strong>Suggested Sugar Level:</strong> {{ recommended_sugar }}</p>
+
+      <p><strong>Current Score:</strong> {{ consumption_score }}/100</p>
+
+      <p><strong>Expected Score:</strong> {{ recommended_score }}/100</p>
+    </div>
+
+    <br />
+    <h2 class="section-title">Consumption Analytics</h2>
+    <p class="analytics-subtitle">
+      Visual analysis of beverage preferences, spending patterns and purchasing
+      trends.
+    </p>
+    <div class="chart-grid">
+      <div class="chart-card">
+        <h2>Drink Type Distribution</h2>
+        <canvas id="pieChart"></canvas>
+      </div>
+
+      <div class="chart-card">
+        <h2>Spending By Drink Type</h2>
+        <canvas id="barChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-card line-chart-card">
+      <h2>Spending Trend</h2>
+      <canvas id="lineChart"></canvas>
+    </div>
+
+    <br /><br />
+
+    <h2>Recent Records</h2>
+
+    <table>
+      <tr>
+        <th>Date</th>
+        <th>Drink</th>
+        <th>Sugar</th>
+        <th>Price</th>
+        <th>Action</th>
+      </tr>
+
+      {% for row in recent_records %}
+
+      <tr>
+        <td>{{ row[1] }}</td>
+        <td>{{ row[2] }}</td>
+        <td>{{ row[3] }}</td>
+        <td>NT$ {{ row[4] }}</td>
+
+        <td>
+          <a
+            href="/delete/{{ row[0] }}"
+            class="delete-btn"
+            onclick="return confirm('Delete this record?');"
+          >
+            Delete
+          </a>
+        </td>
+      </tr>
+
+      {% endfor %}
+    </table>
+
+    <br />
+    <script>
+      window.chartData = {
+          pieLabels: {{ pie_labels|tojson }},
+          pieValues: {{ pie_values|tojson }},
+
+          barLabels: {{ bar_labels|tojson }},
+          barValues: {{ bar_values|tojson }},
+
+          lineLabels: {{ line_labels|tojson }},
+          lineValues: {{ line_values|tojson }}
+      };
+    </script>
+
+    <script src="{{ url_for('static', filename='charts.js') }}"></script>
+  </body>
+</html>

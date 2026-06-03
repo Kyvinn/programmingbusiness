@@ -1,0 +1,79 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Student Beverage Analysis System</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static',
+          filename='style.css') }}"
+    />
+  </head>
+
+  <body>
+    <header class="navbar">
+      <div class="logo">Student Beverage Analysis System</div>
+
+      <nav>
+        <a href="/" class="active">Record Entry</a>
+        <a href="/dashboard">Dashboard</a>
+      </nav>
+    </header>
+
+    <div class="hero-section">
+      <h1>Student Beverage Consumption Tracker</h1>
+
+      <p>
+        Record beverage purchases and monitor spending and sugar intake through
+        interactive analytics.
+      </p>
+    </div>
+
+    <div class="form-container">
+      <h2>Add Beverage Record</h2>
+
+      <form action="/add" method="POST">
+        <label>📅 Purchase Date</label>
+        <input type="date" name="date" required />
+
+        <label>🥤 Drink Type</label>
+        <input
+          type="text"
+          name="drink"
+          placeholder="e.g. Bubble Tea, Coffee, Milk Tea"
+          required
+        />
+
+        <label>🍬 Sugar Level</label>
+
+        <div class="sugar-selector">
+          <input
+            type="radio"
+            id="full"
+            name="sugar"
+            value="全糖"
+            checked
+            hidden
+          />
+          <label for="full" class="sugar-btn">全糖</label>
+
+          <input type="radio" id="less" name="sugar" value="少糖" hidden />
+          <label for="less" class="sugar-btn">少糖</label>
+
+          <input type="radio" id="half" name="sugar" value="半糖" hidden />
+          <label for="half" class="sugar-btn">半糖</label>
+
+          <input type="radio" id="light" name="sugar" value="微糖" hidden />
+          <label for="light" class="sugar-btn">微糖</label>
+
+          <input type="radio" id="none" name="sugar" value="無糖" hidden />
+          <label for="none" class="sugar-btn">無糖</label>
+        </div>
+
+        <label>💰 Price (NT$)</label>
+        <input type="number" name="price" placeholder="e.g. 65" required />
+
+        <button type="submit">Add Beverage Record</button>
+      </form>
+    </div>
+  </body>
+</html>
